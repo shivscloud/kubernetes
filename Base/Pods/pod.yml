@@ -1,0 +1,20 @@
+#kubectl run nginx --image=nginx --dry-run -o yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: nginxpod
+  name: nginxpod
+spec:
+  containers:
+  - image: nginx:latest
+    name: nginxpod
+    volumeMounts:
+    - mountPath: /test
+      name: test-vol
+  - image: rajeshsingam/prod-working-flask:latest
+    name: dummytest
+  volumes:
+  - name: test-vol
+    emptyDir: {}
+  restartPolicy: Always
