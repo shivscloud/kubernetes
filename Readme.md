@@ -1,4 +1,3 @@
----
 
 # Kubernetes Core Concepts and Components
 
