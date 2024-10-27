@@ -1,7 +1,7 @@
 
 # Kubernetes Core Concepts and Components
 
-![Kubernetes Architecture](C:\Users\shiva\Downloads\k8.png)
+![Kubernetes Architecture](https://github.com/shivscloud/profession-images/blob/main/k8.png?raw=true)
 Control plane:
 Ref: https://www.rajesh-singamsetti.site/2024/07/kubernetes-e2e-advanced.html
 - API(Run as a pod)
