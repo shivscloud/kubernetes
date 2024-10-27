@@ -1,0 +1,19 @@
+https://kyverno.io/policies/
+
+If you want to apply anything on the cluster level lets say you want restrict a image that don't want to utilize by the k8 pod or by default pod need to have stable cpu & memory then "kyverno" will be vert helpful.
+
+Note: Its applicated for entire cluster level where as resource quota and limit range will applicable on Namespace level.
+
+Ex: https://kyverno.io/policies/other/add-default-resources/add-default-resources/
+
+** Vurenebility scanning tool
+Trivy by Aqua Security
+
+https://github.com/aquasecurity/trivy
+
+kube-bench
+kube-linter
+
+to check pod & k8 standards
+
+

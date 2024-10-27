@@ -1,0 +1,86 @@
+# <!-- StatefulSet:
+
+# Replaced the Deployment with a StatefulSet for MongoDB. This ensures that each Pod gets a unique identifier (e.g., mongo-0, mongo-1) and stable storage that persists across Pod restarts.
+# StatefulSets also provide ordered deployment, scaling, and updates.
+# Headless Service:
+
+# Service for MongoDB is defined as headless (clusterIP: None) to support stable network identities and persistent storage for StatefulSet Pods.
+# VolumeClaimTemplates:
+
+# Each MongoDB replica has its own PersistentVolumeClaim for storing data, ensuring data persistence across Pod restarts.
+# Replicas:
+
+# Increased MongoDB replicas to 3 to enable high availability and redundancy in production.
+# Probes:
+
+# Readiness and Liveness Probes are added to ensure that MongoDB is healthy before being marked ready and to restart the Pod if necessary.
+# This setup allows MongoDB to run in a stable, production-grade manner, providing better support for persistent data storage and ensuring the application's resilience. -->
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-statefulset
+  labels:
+    app: mysql
+spec:
+  serviceName: mysql-service  # Headless service for stable network IDs
+  replicas: 3  # Adjust based on production requirements
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8.0
+        ports:
+        - containerPort: 3306  # MySQL default port
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: root-password  # Store sensitive data securely
+        volumeMounts:
+        - name: mysql-data
+          mountPath: /var/lib/mysql  # Mount persistent storage for data
+        readinessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - "-h"
+            - "localhost"
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+            - "-h"
+            - "localhost"
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi  # Ensure persistent storage for the database
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 1  # Update one pod at a time to ensure stability

@@ -1,0 +1,56 @@
+# https://rajeshsingamsetti.blogspot.com/2023/03/k8-session4-09-deployment-daemonset.html
+# DaemonSets are often used for workloads that should run on all (or some) nodes, such as logging agents or monitoring tools.
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: logging-daemonset
+  labels:
+    app: logging-agent
+spec:
+  selector:
+    matchLabels:
+      app: logging-agent
+  template:
+    metadata:
+      labels:
+        app: logging-agent
+    spec:
+      containers:
+      - name: logging-agent
+        image: fluentd:latest
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "256Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+        ports:
+        - containerPort: 24224  # Fluentd's default port
+        volumeMounts:
+        - name: log-files
+          mountPath: /var/log
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 24224
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 24224
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: log-files
+        hostPath:
+          path: /var/log  # Access logs on the host nodes
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1  # Ensures only one pod can be unavailable during updates
+  tolerations:  # Ensure it runs on all nodes including tainted ones like master nodes
+  - key: "node-role.kubernetes.io/master"
+    effect: NoSchedule

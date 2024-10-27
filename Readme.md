@@ -2,6 +2,19 @@
 
 # Kubernetes Core Concepts and Components
 
+![Kubernetes Architecture](https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2Fcqud3rjkss361.png)
+
+Control plane:
+Ref: https://www.rajesh-singamsetti.site/2024/07/kubernetes-e2e-advanced.html
+- API(Run as a pod)
+- Scheduler(Run as a pod)
+- Control manager(Run as a pod)
+- ETCD(Run as a pod)
+Data plane:
+Ref:- https://www.rajesh-singamsetti.site/2024/07/kubernetes-e2e-advanced.html
+- Kubelet(Run as a Daemonset) -- 
+- Kube Proxy(Run as a pod)
+
 ---
 
 This guide provides a comprehensive overview of essential Kubernetes components. Understanding these concepts is crucial for building, deploying, and maintaining containerized applications using Kubernetes.
@@ -14,7 +27,8 @@ This guide provides a comprehensive overview of essential Kubernetes components.
 
 ### **Pod**
 The smallest and simplest Kubernetes object, representing a set of running containers in your cluster.
-
+CSI : Container Storage Interface
+CNI: Container Network Interface
 - **Sidecar Container**: A helper container in a Pod that enhances or provides additional functionality to the main container.
 - **Init Container**: A special container that runs before the main application container in a Pod to perform setup tasks.
 

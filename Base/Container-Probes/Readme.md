@@ -4,11 +4,23 @@ https://learnk8s.io/sidecar-containers-patterns
 
 In Kubernetes, a sidecar container is a container that starts before the main application container and continues to run. This document is about init containers: containers that run to completion during Pod initialization
 
+PodLifecycle:
+1.Pending 2.Succeed 3.failed 4.running 5.Unknown
+Container Lifecycle:
+1.Runnning 2. Waiting 3. Terminated
 
 
 Sidecar Containers:
-
-- Init Containers
+- Debug container ['In real time we mostlt wont use the reason behind we cant kill the debug container']
+- Init Containers ['It runs before the main container runs in pod']
+  -- Use cases(We can run multiple init containers)
+  - To fetch the secrets & password
+  - To run the distroless images to perform some activity like download git code
+  - Note: Once the init container task will be done it will washout the container
+  the issue with init container if it fails it won't run the main application container thats why now a days we were using the sidecar container.
+- Sidecar Containers['Its started to use in k8 1.28 version'](IT will run until the main container dies)
+  - Sidecar & init container are same the only diff is under init conatiners the restartpolicy:always should be there
+  Restart policy types: "Never,Always,On failure"  
 - Adapter Containers
 - Ambassador Containers
 Probes:

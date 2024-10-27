@@ -1,0 +1,88 @@
+####
+Commands
+kubectl create deployment rajdeploy --image rajeshsingam/rajesh_aws_app --replicas=1 --dry-run -o yaml
+kubectl explain deployment.spec.strategy
+     - `"Recreate"` Kill all existing pods before creating new ones.
+     - `"RollingUpdate"` Replace the old ReplicaSets by new one using rolling
+    update i.e gradually scale down the old ReplicaSets and scale up the new
+
+**kubectl explain deployment.spec.strategy.rollingUpdate
+Max surge :  The maximum number of pods that can be scheduled above the desired number of pods
+Max unavailable:The maximum number of pods that can be unavailable during the update.
+
+Note: above two parms we can declare the number as well as percentage also    
+##
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-deployment
+  labels:
+    app: mongo
+spec:
+  replicas: 3  # Increased for high availability, adjust as needed
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1  # Allows up to 1 extra pod above the desired replicas during an update
+      maxUnavailable: 0  # Ensures only 0 pod can be unavailable during an update
+  minReadySeconds: 10  # Pods must stay ready for 10 seconds before being marked ready
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          value: "root"
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          value: "example"
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+        readinessProbe:  # Ensures MongoDB is ready before serving traffic
+          exec:
+            command:
+            - mongo
+            - --eval
+            - "db.adminCommand('ping')"
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:  # Ensures MongoDB is still alive, restart if not
+          exec:
+            command:
+            - mongo
+            - --eval
+            - "db.adminCommand('ping')"
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      volumes:
+      - name: mongo-data
+        persistentVolumeClaim:
+          claimName: mongo-pvc
+```
+
+# ### Changes and Improvements:
+# 1. **Replicas**: 
+#    - `replicas: 3`: Increased to 3 for high availability. In production, it's essential to run multiple replicas to avoid a single point of failure.
+
+# 2. **Rolling Update Strategy**:
+#    - `maxSurge: 1`: Allows 1 extra MongoDB Pod to be created during updates.
+#    - `maxUnavailable: 1`: Ensures at least 2 Pods are always running while one can be taken down during an update.
+
+# 3. **minReadySeconds**:
+#    - `minReadySeconds: 30`: Ensures that new Pods remain stable for 30 seconds before being considered "ready," improving reliability during deployment changes.
+
+# 4. **Probes**:
+#    - **Readiness Probe**: Uses a `mongo` command to check if the database is ready to serve requests.
+#    - **Liveness Probe**: Ensures MongoDB is alive by periodically running a command to check the status of the MongoDB service. If the check fails, Kubernetes will restart the Pod.
+
+# This configuration ensures that your MongoDB deployment can handle rolling updates smoothly while maintaining availability.
