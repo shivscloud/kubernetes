@@ -22,3 +22,6 @@ rm -f kubectl
 rm -rf kind
 
 echo "kind & kubectl installation complete."
+
+#kind create cluster 
+kind create cluster --name kind-2
