@@ -25,3 +25,5 @@ echo "kind & kubectl installation complete."
 
 #kind create cluster 
 kind create cluster --name kind-2
+kubectl cluster-info --context kind-kind-2
+
